@@ -43,6 +43,18 @@ A full-stack social media application that combines features from YouTube and Tw
 - Tailwind CSS
 - Axios
 
+## Project Structure
+```
+MERN-Video-Streamer/
+├── backend/           # Backend server code
+│   ├── src/          # Source code
+│   ├── public/       # Public assets
+│   └── package.json  # Backend dependencies
+└── frontend/         # Frontend React application
+    ├── src/          # Source code
+    └── package.json  # Frontend dependencies
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -61,10 +73,11 @@ cd MERN-Video-Streamer
 
 2. Install backend dependencies
 ```bash
+cd backend
 npm install
 ```
 
-3. Create a .env file in the root directory with the following variables:
+3. Create a .env file in the backend directory with the following variables:
 ```env
 PORT=8000
 MONGODB_URI=your_mongodb_uri
@@ -76,7 +89,7 @@ JWT_SECRET=your_jwt_secret
 
 4. Install frontend dependencies
 ```bash
-cd frontend
+cd ../frontend
 npm install
 ```
 
@@ -89,7 +102,7 @@ REACT_APP_API_URL=http://localhost:8000/api/v1
 
 1. Start the backend server
 ```bash
-cd MERN-Video-Streamer
+cd backend
 npm run dev
 ```
 
