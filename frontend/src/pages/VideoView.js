@@ -2,24 +2,32 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
-import { getVideo, toggleVideoLike, addComment, updateVideoViews } from '../services/api';
-import { FaThumbsUp, FaEye, FaClock, FaUser } from 'react-icons/fa';
+import { getVideo, toggleVideoLike, addComment, updateVideoViews, getVideoComments } from '../services/api';
+import { FaThumbsUp, FaEye, FaClock, FaUser, FaRegThumbsUp } from 'react-icons/fa';
 
 const VideoView = () => {
   const { videoId } = useParams();
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [comment, setComment] = useState('');
   const hasUpdatedViews = useRef(false);
   const videoRef = useRef(null);
   const isLiking = useRef(false);
 
-  const { data: video, isLoading } = useQuery({
+  const { data: video, isLoading: videoLoading } = useQuery({
     queryKey: ['video', videoId],
     queryFn: async () => {
       const response = await getVideo(videoId);
       console.log('Video data:', response.data);
       return response.data.data;
+    }
+  });
+
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
+    queryKey: ['comments', videoId],
+    queryFn: async () => {
+      const response = await getVideoComments(videoId);
+      return response.data.data.comments || [];
     }
   });
 
@@ -31,31 +39,18 @@ const VideoView = () => {
   });
 
   const likeMutation = useMutation({
-    mutationFn: async () => {
-      if (isLiking.current) return;
-      isLiking.current = true;
-      console.log('Toggling like for video:', videoId);
-      const response = await toggleVideoLike(videoId);
-      console.log('Like response:', response.data);
-      return response.data;
-    },
-    onSuccess: (data) => {
-      console.log('Like success:', data);
-      queryClient.invalidateQueries({ queryKey: ['video', videoId] });
-      isLiking.current = false;
-    },
-    onError: (error) => {
-      console.error('Like error:', error);
-      isLiking.current = false;
+    mutationFn: () => toggleVideoLike(videoId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['video', videoId]);
     }
   });
 
   const commentMutation = useMutation({
-    mutationFn: (content) => addComment(videoId, content),
+    mutationFn: (content) => addComment(videoId, { content }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['video', videoId] });
+      queryClient.invalidateQueries(['comments', videoId]);
       setComment('');
-    },
+    }
   });
 
   useEffect(() => {
@@ -73,19 +68,17 @@ const VideoView = () => {
   }, [video, viewMutation]);
 
   const handleLike = () => {
-    if (isAuthenticated && !isLiking.current) {
-      likeMutation.mutate();
-    }
+    if (!isAuthenticated) return;
+    likeMutation.mutate();
   };
 
   const handleComment = (e) => {
     e.preventDefault();
-    if (comment.trim() && isAuthenticated) {
-      commentMutation.mutate(comment);
-    }
+    if (!comment.trim() || !isAuthenticated) return;
+    commentMutation.mutate(comment);
   };
 
-  if (isLoading) {
+  if (videoLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -127,9 +120,9 @@ const VideoView = () => {
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-600'
                 }`}
-                disabled={!isAuthenticated || likeMutation.isLoading || isLiking.current}
+                disabled={!isAuthenticated || likeMutation.isPending}
               >
-                <FaThumbsUp />
+                {video?.isLiked ? <FaThumbsUp /> : <FaRegThumbsUp />}
                 <span>{video?.likes || 0}</span>
               </button>
             </div>
@@ -160,9 +153,9 @@ const VideoView = () => {
                 <button
                   type="submit"
                   className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                  disabled={!comment.trim()}
+                  disabled={commentMutation.isPending}
                 >
-                  Comment
+                  {commentMutation.isPending ? 'Posting...' : 'Post Comment'}
                 </button>
               </form>
             ) : (
@@ -171,20 +164,36 @@ const VideoView = () => {
               </p>
             )}
 
-            {video?.comments?.map((comment) => (
-              <div key={comment._id} className="bg-gray-50 p-4 rounded-lg mb-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <FaUser className="text-gray-600" />
-                  <span className="font-semibold">
-                    {comment.user?.fullName}
-                  </span>
-                  <span className="text-gray-500 text-sm">
-                    {new Date(comment.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-gray-700">{comment.content}</p>
+            {commentsLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="bg-gray-100 h-20 rounded-lg"></div>
+                ))}
               </div>
-            ))}
+            ) : comments && comments.length > 0 ? (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div key={comment._id} className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <img
+                        src={comment.user?.avatar}
+                        alt={comment.user?.fullName}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <p className="font-semibold">{comment.user?.fullName}</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(comment.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700">{comment.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-600">No comments yet. Be the first to comment!</p>
+            )}
           </div>
         </div>
 

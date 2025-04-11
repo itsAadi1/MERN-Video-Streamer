@@ -39,7 +39,7 @@ const Navbar = () => {
                 </Link>
 
                 <Link
-                  to={`/profile/${user?._id}`}
+                  to={`/profile/${user?.username}`}
                   className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"
                 >
                   <FaUser />
@@ -64,7 +64,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  className="text-gray-600 hover:text-gray-800"
                 >
                   Register
                 </Link>

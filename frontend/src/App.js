@@ -27,7 +27,8 @@ function App() {
         .then((res) => {
           dispatch(loginSuccess({ user: res.data.data, token }));
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Error fetching user:', error);
           localStorage.removeItem('token');
         });
     }
@@ -42,11 +43,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/profile/:userId" element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            } />
+            <Route path="/profile/:username" element={<Profile />} />
             <Route path="/upload" element={
               <PrivateRoute>
                 <VideoUpload />

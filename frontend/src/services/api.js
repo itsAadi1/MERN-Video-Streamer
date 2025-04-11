@@ -40,6 +40,7 @@ export const register = (userData) => api.post('/users/register', userData, {
 });
 export const getCurrentUser = () => api.get('/users/current-user');
 export const updateProfile = (userData) => api.patch('/users/update-account', userData);
+export const getUserChannelProfile = (username) => api.get(`/users/c/${username}`);
 
 // Video API
 export const uploadVideo = (formData) => api.post('/videos', formData, {
@@ -51,7 +52,8 @@ export const getVideos = (params) => api.get('/videos', { params });
 export const getVideo = (videoId) => api.get(`/videos/${videoId}`);
 export const updateVideoViews = (videoId) => api.patch(`/videos/views/${videoId}`);
 export const toggleVideoLike = (videoId) => api.post(`/likes/toggle/v/${videoId}`);
-export const addComment = (videoId, content) => api.post(`/comments/${videoId}`, { content });
+export const addComment = (videoId, content) => api.post(`/comments/${videoId}`, content);
+export const getVideoComments = (videoId) => api.get(`/comments/${videoId}`);
 
 // Tweet API
 export const createTweet = (content) => api.post('/tweets', { content });
