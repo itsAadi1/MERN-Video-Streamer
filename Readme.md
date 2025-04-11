@@ -55,8 +55,8 @@ A full-stack social media application that combines features from YouTube and Tw
 
 1. Clone the repository
 ```bash
-git clone https://github.com/itsAadi1/youtube-twitter-backend.git
-cd youtube-twitter-backend
+git clone https://github.com/itsAadi1/MERN-Video-Streamer.git
+cd MERN-Video-Streamer
 ```
 
 2. Install backend dependencies
@@ -89,7 +89,7 @@ REACT_APP_API_URL=http://localhost:8000/api/v1
 
 1. Start the backend server
 ```bash
-cd youtube-twitter-backend
+cd MERN-Video-Streamer
 npm run dev
 ```
 
@@ -143,4 +143,4 @@ This project is open source and available under the MIT License.
 
 Aadarsh Kumar Jha - [GitHub](https://github.com/itsAadi1)
 
-Project Link: [https://github.com/itsAadi1/youtube-twitter-backend](https://github.com/itsAadi1/youtube-twitter-backend)
+Project Link: [https://github.com/itsAadi1/MERN-Video-Streamer](https://github.com/itsAadi1/MERN-Video-Streamer)
