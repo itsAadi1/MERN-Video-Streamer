@@ -13,7 +13,8 @@ const api = axios.create({
 // Add token to requests if it exists
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
+    console.log('API Request - Token:', token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,9 +22,11 @@ api.interceptors.request.use(
     if (!config.headers['Content-Type']) {
       config.headers['Content-Type'] = 'application/json';
     }
+    console.log('API Request - Config:', config);
     return config;
   },
   (error) => {
+    console.error('API Request - Error:', error);
     return Promise.reject(error);
   }
 );
@@ -58,7 +61,7 @@ export const getVideoComments = (videoId) => api.get(`/comments/${videoId}`);
 // Tweet API
 export const createTweet = (content) => api.post('/tweets', { content });
 export const getTweets = () => api.get('/tweets');
-export const toggleTweetLike = (tweetId) => api.post(`/tweets/like/${tweetId}`);
+export const toggleTweetLike = (tweetId) => api.post(`/likes/toggle/t/${tweetId}`);
 
 // Subscription API
 export const toggleSubscription = (channelId) => api.post(`/subscriptions/c/${channelId}`);

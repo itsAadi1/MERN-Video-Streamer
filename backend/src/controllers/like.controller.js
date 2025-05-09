@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Video } from "../models/video.model.js";
+import { Tweet } from "../models/tweet.model.js";
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
@@ -75,9 +76,13 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     if (existing) {
         await Like.findOneAndDelete({ tweet: tweetId, likedBy: req.user?._id });
         isLiked = false;
+        // Update tweet likes count
+        await Tweet.findByIdAndUpdate(tweetId, { $inc: { likes: -1 } });
     } else {
         await Like.create({ tweet: tweetId, likedBy: req.user?._id });
         isLiked = true;
+        // Update tweet likes count
+        await Tweet.findByIdAndUpdate(tweetId, { $inc: { likes: 1 } });
     }
 
     return res.status(200).json(

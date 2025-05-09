@@ -2,25 +2,47 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createTweet, getTweets, toggleTweetLike } from '../services/api';
 import { FaUser, FaHeart, FaClock } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Tweets = () => {
   const [content, setContent] = useState('');
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   const { data: tweets, isLoading } = useQuery({
     queryKey: ['tweets'],
     queryFn: async () => {
-      const response = await getTweets();
-      return response.data.data;
+      try {
+        const response = await getTweets();
+        return response.data.data;
+      } catch (error) {
+        console.error('Error fetching tweets:', error);
+        return [];
+      }
     }
   });
 
   const createTweetMutation = useMutation({
-    mutationFn: (data) => createTweet(data),
+    mutationFn: (data) => {
+      if (!isAuthenticated) {
+        navigate('/login');
+        throw new Error('Please login to create a tweet');
+      }
+      console.log('Creating tweet with data:', data);
+      return createTweet(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tweets'] });
       setContent('');
     },
+    onError: (error) => {
+      console.error('Error creating tweet:', error);
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    }
   });
 
   const likeTweetMutation = useMutation({
@@ -32,8 +54,13 @@ const Tweets = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     if (content.trim()) {
-      createTweetMutation.mutate({ content });
+      console.log('Submitting tweet with content:', content);
+      createTweetMutation.mutate(content);
     }
   };
 
