@@ -59,7 +59,8 @@ const Register = () => {
       }
 
       const response = await registerApi(data);
-      dispatch(loginSuccess(response.data.data));
+      const { user, accessToken } = response.data.data;
+      dispatch(loginSuccess({ user, token: accessToken }));
       navigate('/');
     } catch (error) {
       dispatch(loginFailure(error.response?.data?.message || 'Registration failed'));

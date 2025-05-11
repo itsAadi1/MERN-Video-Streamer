@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createTweet, getTweets, toggleTweetLike } from '../services/api';
+import { createTweet, deleteTweet, getTweets, toggleTweetLike } from '../services/api';
 import { FaUser, FaHeart, FaClock } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -68,6 +68,15 @@ const Tweets = () => {
     likeTweetMutation.mutate(tweetId);
   };
 
+  const deleteTweetMutation=useMutation({
+    mutationFn:(tweetId)=>deleteTweet(tweetId),
+    onSuccess:()=>{
+      queryClient.invalidateQueries({queryKey:['tweets']})
+    }
+  })
+  const handleDelete=(tweetId)=>{
+    deleteTweetMutation.mutate(tweetId);
+  };
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -75,7 +84,8 @@ const Tweets = () => {
       </div>
     );
   }
-
+ 
+ 
   return (
     <div className="max-w-2xl mx-auto px-4">
       <div className="bg-white rounded-lg shadow p-6 mb-8">
@@ -121,6 +131,12 @@ const Tweets = () => {
             >
               <FaHeart />
               <span>{tweet.likes || 0}</span>
+            </button>
+            <button 
+              onClick={() => handleDelete(tweet._id)}
+              className="ml-4 px-3 py-1 text-sm text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+            >
+              Delete
             </button>
           </div>
         ))}

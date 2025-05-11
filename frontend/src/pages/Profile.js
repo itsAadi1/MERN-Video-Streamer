@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserChannelProfile, toggleSubscription } from '../services/api';
 import { FaUser, FaVideo, FaTwitter, FaUsers } from 'react-icons/fa';
@@ -8,7 +8,7 @@ const Profile = () => {
   const { username } = useParams();
   const { isAuthenticated, user: currentUser } = useSelector((state) => state.auth);
   const queryClient = useQueryClient();
-
+  const navigate=useNavigate();
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['user', username],
     queryFn: async () => {
@@ -26,7 +26,7 @@ const Profile = () => {
 
   const handleSubscribe = () => {
     if (!isAuthenticated) {
-      // You might want to redirect to login or show a message
+      navigate('/login')
       return;
     }
     subscribeMutation.mutate();

@@ -21,7 +21,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       getCurrentUser()
         .then((res) => {
@@ -29,7 +29,7 @@ function App() {
         })
         .catch((error) => {
           console.error('Error fetching user:', error);
-          localStorage.removeItem('token');
+          localStorage.removeItem('accessToken');
         });
     }
   }, [dispatch]);

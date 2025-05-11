@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import { getVideo, toggleVideoLike, addComment, updateVideoViews, getVideoComments } from '../services/api';
@@ -13,7 +13,7 @@ const VideoView = () => {
   const hasUpdatedViews = useRef(false);
   const videoRef = useRef(null);
   const isLiking = useRef(false);
-
+  const navigate=useNavigate();
   const { data: video, isLoading: videoLoading } = useQuery({
     queryKey: ['video', videoId],
     queryFn: async () => {
@@ -68,7 +68,10 @@ const VideoView = () => {
   }, [video, viewMutation]);
 
   const handleLike = () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated){
+      navigate('/login')
+      return;
+    }
     likeMutation.mutate();
   };
 
@@ -120,7 +123,7 @@ const VideoView = () => {
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-600'
                 }`}
-                disabled={!isAuthenticated || likeMutation.isPending}
+                disabled={likeMutation.isPending}
               >
                 {video?.isLiked ? <FaThumbsUp /> : <FaRegThumbsUp />}
                 <span>{video?.likes || 0}</span>

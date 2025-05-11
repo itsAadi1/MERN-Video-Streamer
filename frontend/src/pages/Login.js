@@ -26,7 +26,6 @@ const Login = () => {
       const response = await loginApi(formData);
       const { user, accessToken } = response.data.data;
       dispatch(loginSuccess({ user, token: accessToken }));
-      localStorage.setItem('token', accessToken);
       navigate('/');
     } catch (error) {
       console.error('Login error:', error);

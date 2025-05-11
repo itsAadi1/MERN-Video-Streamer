@@ -31,6 +31,19 @@ api.interceptors.request.use(
   }
 );
 
+// Add response interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear token on authentication error
+      localStorage.removeItem('accessToken');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Auth API
 export const login = (credentials) => api.post('/users/login', {
   email: credentials.email,
@@ -62,6 +75,7 @@ export const getVideoComments = (videoId) => api.get(`/comments/${videoId}`);
 export const createTweet = (content) => api.post('/tweets', { content });
 export const getTweets = () => api.get('/tweets');
 export const toggleTweetLike = (tweetId) => api.post(`/likes/toggle/t/${tweetId}`);
+export const deleteTweet=(tweetId)=>api.delete(`/tweets/${tweetId}`)
 
 // Subscription API
 export const toggleSubscription = (channelId) => api.post(`/subscriptions/c/${channelId}`);

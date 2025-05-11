@@ -60,7 +60,7 @@ const Home = () => {
                 className="w-full h-48 object-cover"
               />
               <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-sm px-2 py-1 rounded">
-                {Math.floor(video.duration / 60)}:{String(video.duration % 60).padStart(2, '0')}
+                {Math.floor(video.duration / 60)}:{String(Math.floor(video.duration % 60)).padStart(2, '0')}
               </div>
             </div>
             <div className="p-4">
